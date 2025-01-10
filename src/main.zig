@@ -40,5 +40,20 @@ pub fn main() !void {
     var socket = try Socket.init("127.0.0.1", 3000);
     std.debug.print("Socket created\n", .{});
 
-    try socket.send("Hello, world!");
+    var stdin = std.io.getStdIn().reader();
+    var input: [256]u8 = undefined;
+    var input_buffer = input[0..];
+
+    while (true) {
+        std.debug.print("Enter message (type 'exit' to quit): ", .{});
+        if (try stdin.readUntilDelimiterOrEof(input_buffer[0..], '\n')) |user_input| {
+            if (std.mem.eql(u8, user_input, "exit")) {
+                break;
+            }
+
+            try socket.send(user_input);
+        } else {
+            break;
+        }
+    }
 }
