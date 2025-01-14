@@ -41,13 +41,19 @@ pub fn main() !void {
     std.debug.print("Socket created\n", .{});
 
     var stdin = std.io.getStdIn().reader();
+    var stdout = std.io.getStdOut().writer();
+
     var input: [256]u8 = undefined;
     var input_buffer = input[0..];
 
     while (true) {
-        std.debug.print("Enter message (type 'exit' to quit): ", .{});
+        try stdout.print("Enter message (type 'exit' to quit): ", .{});
         if (try stdin.readUntilDelimiterOrEof(input_buffer[0..], '\n')) |user_input| {
-            if (std.mem.eql(u8, user_input, "exit")) {
+            var trimmed_input = user_input;
+            while (trimmed_input.len > 0 and (trimmed_input[trimmed_input.len - 1] == '\r')) {
+                trimmed_input = trimmed_input[0 .. trimmed_input.len - 1];
+            }
+            if (std.mem.eql(u8, trimmed_input, "exit")) {
                 break;
             }
 
